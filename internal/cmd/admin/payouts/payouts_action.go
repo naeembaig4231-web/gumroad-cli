@@ -1,18 +1,22 @@
 package payouts
 
 import (
+	"io"
+	"strings"
+
 	"github.com/antiwork/gumroad-cli/internal/cmdutil"
 	"github.com/antiwork/gumroad-cli/internal/output"
 )
 
 type payoutsActionResponse struct {
 	Success       bool   `json:"success"`
+	UserID        string `json:"user_id"`
 	Status        string `json:"status"`
 	Message       string `json:"message"`
 	PayoutsPaused bool   `json:"payouts_paused"`
 }
 
-func renderPayoutsAction(opts cmdutil.Options, email string, resp payoutsActionResponse) error {
+func renderPayoutsAction(opts cmdutil.Options, userID string, resp payoutsActionResponse) error {
 	message := resp.Message
 	if message == "" {
 		message = resp.Status
@@ -25,7 +29,7 @@ func renderPayoutsAction(opts cmdutil.Options, email string, resp payoutsActionR
 
 	if opts.PlainOutput {
 		return output.PrintPlain(opts.Out(), [][]string{
-			{"true", message, email, resp.Status, state},
+			{"true", message, userID, resp.Status, state},
 		})
 	}
 
@@ -37,10 +41,8 @@ func renderPayoutsAction(opts cmdutil.Options, email string, resp payoutsActionR
 	if err := output.Writeln(opts.Out(), style.Green(message)); err != nil {
 		return err
 	}
-	if email != "" {
-		if err := output.Writef(opts.Out(), "Email: %s\n", email); err != nil {
-			return err
-		}
+	if err := writeUserIDLine(opts.Out(), message, userID); err != nil {
+		return err
 	}
 	if resp.Status != "" {
 		if err := output.Writef(opts.Out(), "Status: %s\n", resp.Status); err != nil {
@@ -48,4 +50,11 @@ func renderPayoutsAction(opts cmdutil.Options, email string, resp payoutsActionR
 		}
 	}
 	return output.Writef(opts.Out(), "Payouts: %s\n", state)
+}
+
+func writeUserIDLine(w io.Writer, message, userID string) error {
+	if userID == "" || strings.Contains(message, userID) {
+		return nil
+	}
+	return output.Writef(w, "User ID: %s\n", userID)
 }

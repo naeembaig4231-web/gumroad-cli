@@ -12,6 +12,7 @@ import (
 
 func sampleInfoPayload() map[string]any {
 	return map[string]any{
+		"user_id": "2245593582708",
 		"user": map[string]any{
 			"id":          "u_abc",
 			"email":       "seller@example.com",
@@ -50,7 +51,7 @@ func sampleInfoPayload() map[string]any {
 	}
 }
 
-func TestInfoRequiresEmailOrExternalID(t *testing.T) {
+func TestInfoRequiresEmailOrUserID(t *testing.T) {
 	cmd := newInfoCmd()
 	cmd.SetArgs([]string{})
 
@@ -58,12 +59,12 @@ func TestInfoRequiresEmailOrExternalID(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected missing identifier error")
 	}
-	if !strings.Contains(err.Error(), "supply --email or --external-id") {
+	if !strings.Contains(err.Error(), "supply --email or --user-id") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
-func TestInfoResolvesByExternalID(t *testing.T) {
+func TestInfoResolvesByUserID(t *testing.T) {
 	var body infoRequest
 
 	testutil.SetupAdmin(t, func(w http.ResponseWriter, r *http.Request) {
@@ -74,21 +75,21 @@ func TestInfoResolvesByExternalID(t *testing.T) {
 		if err := json.Unmarshal(raw, &body); err != nil {
 			t.Fatalf("decode body: %v", err)
 		}
-		if !strings.Contains(string(raw), `"external_id"`) {
-			t.Fatalf("expected external_id in request body, got %q", raw)
+		if !strings.Contains(string(raw), `"user_id"`) {
+			t.Fatalf("expected user_id in request body, got %q", raw)
 		}
 		if strings.Contains(string(raw), `"email"`) {
-			t.Fatalf("email field must be omitted when only --external-id is supplied, got %q", raw)
+			t.Fatalf("email field must be omitted when only --user-id is supplied, got %q", raw)
 		}
 		testutil.JSON(t, w, sampleInfoPayload())
 	})
 
 	cmd := testutil.Command(newInfoCmd(), testutil.Quiet(false))
-	cmd.SetArgs([]string{"--external-id", "2245593582708"})
+	cmd.SetArgs([]string{"--user-id", "2245593582708"})
 	out := testutil.CaptureStdout(func() { testutil.MustExecute(t, cmd) })
 
-	if body.ExternalID != "2245593582708" {
-		t.Fatalf("got external_id %q, want 2245593582708", body.ExternalID)
+	if body.UserID != "2245593582708" {
+		t.Fatalf("got user_id %q, want 2245593582708", body.UserID)
 	}
 	if body.Email != "" {
 		t.Errorf("expected email to be empty, got %q", body.Email)
@@ -98,7 +99,7 @@ func TestInfoResolvesByExternalID(t *testing.T) {
 	}
 }
 
-func TestInfoSendsBothWhenEmailAndExternalIDSupplied(t *testing.T) {
+func TestInfoSendsBothWhenEmailAndUserIDSupplied(t *testing.T) {
 	var body infoRequest
 
 	testutil.SetupAdmin(t, func(w http.ResponseWriter, r *http.Request) {
@@ -113,14 +114,14 @@ func TestInfoSendsBothWhenEmailAndExternalIDSupplied(t *testing.T) {
 	})
 
 	cmd := testutil.Command(newInfoCmd(), testutil.Quiet(false))
-	cmd.SetArgs([]string{"--email", "seller@example.com", "--external-id", "2245593582708"})
+	cmd.SetArgs([]string{"--email", "seller@example.com", "--user-id", "2245593582708"})
 	testutil.CaptureStdout(func() { testutil.MustExecute(t, cmd) })
 
 	if body.Email != "seller@example.com" {
-		t.Errorf("got email %q, want seller@example.com (server prefers external_id but CLI forwards both)", body.Email)
+		t.Errorf("got email %q, want seller@example.com (server prefers user_id but CLI forwards both)", body.Email)
 	}
-	if body.ExternalID != "2245593582708" {
-		t.Errorf("got external_id %q, want 2245593582708", body.ExternalID)
+	if body.UserID != "2245593582708" {
+		t.Errorf("got user_id %q, want 2245593582708", body.UserID)
 	}
 }
 
@@ -162,6 +163,7 @@ func TestInfoUsesInternalAdminEndpointAndRendersHumanOutput(t *testing.T) {
 	for _, want := range []string{
 		"Seller One",
 		"Email: seller@example.com",
+		"User ID: 2245593582708",
 		"Username: sellerone",
 		"Profile: https://sellerone.gumroad.com/",
 		"Country: Germany",
@@ -275,6 +277,31 @@ func TestInfoSuppressesDuplicateEmailLineWhenNameIsEmpty(t *testing.T) {
 	}
 	if strings.Contains(out, "Email: seller@example.com") {
 		t.Errorf("Email: line must be suppressed when headline already shows the email: %q", out)
+	}
+	if !strings.Contains(out, "Username: sellerone") {
+		t.Errorf("downstream lines must still render: %q", out)
+	}
+}
+
+func TestInfoSuppressesDuplicateUserIDLineWhenHeadlineIsUserID(t *testing.T) {
+	payload := sampleInfoPayload()
+	user := payload["user"].(map[string]any)
+	user["name"] = ""
+	user["email"] = ""
+
+	testutil.SetupAdmin(t, func(w http.ResponseWriter, r *http.Request) {
+		testutil.JSON(t, w, payload)
+	})
+
+	cmd := testutil.Command(newInfoCmd(), testutil.Quiet(false))
+	cmd.SetArgs([]string{"--user-id", "2245593582708"})
+	out := testutil.CaptureStdout(func() { testutil.MustExecute(t, cmd) })
+
+	if strings.Count(out, "2245593582708") != 1 {
+		t.Fatalf("expected user_id to appear once, got: %q", out)
+	}
+	if strings.Contains(out, "User ID: 2245593582708") {
+		t.Errorf("User ID line must be suppressed when headline already shows the user_id: %q", out)
 	}
 	if !strings.Contains(out, "Username: sellerone") {
 		t.Errorf("downstream lines must still render: %q", out)

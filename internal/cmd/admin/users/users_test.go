@@ -52,7 +52,7 @@ func TestSuspensionUsesInternalAdminEndpoint(t *testing.T) {
 	}
 }
 
-func TestSuspensionRequiresEmailOrExternalID(t *testing.T) {
+func TestSuspensionRequiresEmailOrUserID(t *testing.T) {
 	cmd := newSuspensionCmd()
 	cmd.SetArgs([]string{})
 
@@ -60,12 +60,12 @@ func TestSuspensionRequiresEmailOrExternalID(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected missing identifier error")
 	}
-	if !strings.Contains(err.Error(), "supply --email or --external-id") {
+	if !strings.Contains(err.Error(), "supply --email or --user-id") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
-func TestSuspensionResolvesByExternalID(t *testing.T) {
+func TestSuspensionResolvesByUserID(t *testing.T) {
 	var body suspensionRequest
 	var rawBody string
 
@@ -79,27 +79,31 @@ func TestSuspensionResolvesByExternalID(t *testing.T) {
 			t.Fatalf("decode body: %v", err)
 		}
 		testutil.JSON(t, w, map[string]any{
+			"user_id":    "2245593582708",
 			"status":     "Suspended",
 			"updated_at": "2026-04-24T12:00:00Z",
 		})
 	})
 
 	cmd := testutil.Command(newSuspensionCmd())
-	cmd.SetArgs([]string{"--external-id", "2245593582708"})
+	cmd.SetArgs([]string{"--user-id", "2245593582708"})
 	out := testutil.CaptureStdout(func() { testutil.MustExecute(t, cmd) })
 
 	if strings.Contains(rawBody, `"email"`) {
-		t.Errorf("email field must be omitted when only --external-id is supplied, got %q", rawBody)
+		t.Errorf("email field must be omitted when only --user-id is supplied, got %q", rawBody)
 	}
-	if body.ExternalID != "2245593582708" || body.Email != "" {
-		t.Errorf("got email=%q external_id=%q, want only external_id", body.Email, body.ExternalID)
+	if body.UserID != "2245593582708" || body.Email != "" {
+		t.Errorf("got email=%q user_id=%q, want only user_id", body.Email, body.UserID)
 	}
 	if !strings.Contains(out, "2245593582708") {
-		t.Errorf("expected external_id in headline output: %q", out)
+		t.Errorf("expected user_id in headline output: %q", out)
+	}
+	if strings.Contains(out, "User ID: 2245593582708") {
+		t.Errorf("must not repeat user_id immediately after the headline: %q", out)
 	}
 }
 
-func TestSuspensionForwardsBothEmailAndExternalID(t *testing.T) {
+func TestSuspensionForwardsBothEmailAndUserID(t *testing.T) {
 	var body suspensionRequest
 
 	testutil.SetupAdmin(t, func(w http.ResponseWriter, r *http.Request) {
@@ -110,11 +114,11 @@ func TestSuspensionForwardsBothEmailAndExternalID(t *testing.T) {
 	})
 
 	cmd := testutil.Command(newSuspensionCmd())
-	cmd.SetArgs([]string{"--email", "user@example.com", "--external-id", "2245593582708"})
+	cmd.SetArgs([]string{"--email", "user@example.com", "--user-id", "2245593582708"})
 	testutil.CaptureStdout(func() { testutil.MustExecute(t, cmd) })
 
-	if body.Email != "user@example.com" || body.ExternalID != "2245593582708" {
-		t.Errorf("got email=%q external_id=%q, want both forwarded", body.Email, body.ExternalID)
+	if body.Email != "user@example.com" || body.UserID != "2245593582708" {
+		t.Errorf("got email=%q user_id=%q, want both forwarded", body.Email, body.UserID)
 	}
 }
 
