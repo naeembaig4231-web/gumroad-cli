@@ -2,10 +2,10 @@ package users
 
 import (
 	"io"
-	"net/url"
 	"strings"
 
-	"github.com/antiwork/gumroad-cli/internal/cmdutil"
+	usercomments "github.com/antiwork/gumroad-cli/internal/cmd/admin/users/comments"
+	"github.com/antiwork/gumroad-cli/internal/cmd/admin/users/usertarget"
 	"github.com/antiwork/gumroad-cli/internal/output"
 	"github.com/spf13/cobra"
 )
@@ -17,6 +17,8 @@ func NewUsersCmd() *cobra.Command {
 		Example: `  gumroad admin users info --email user@example.com
   gumroad admin users info --user-id 2245593582708
   gumroad admin users affiliates --user-id 2245593582708 --direction granted
+  gumroad admin users comments list --user-id 2245593582708
+  gumroad admin users comments add --user-id 2245593582708 --content "VAT exempt confirmed"
   gumroad admin users compliance --user-id 2245593582708
   gumroad admin users purchases --user-id 2245593582708 --status successful
   gumroad admin users related --email user@example.com --signal ip --signal payment_address
@@ -28,12 +30,12 @@ func NewUsersCmd() *cobra.Command {
   gumroad admin users suspend --user-id 2245593582708 --note "Chargeback risk confirmed"
   gumroad admin users reset-password --user-id 2245593582708
   gumroad admin users update-email --user-id 2245593582708 --new-email new@example.com
-  gumroad admin users two-factor disable --user-id 2245593582708
-  gumroad admin users add-comment --user-id 2245593582708 --content "VAT exempt confirmed"`,
+  gumroad admin users two-factor disable --user-id 2245593582708`,
 	}
 
 	cmd.AddCommand(newInfoCmd())
 	cmd.AddCommand(newAffiliatesCmd())
+	cmd.AddCommand(usercomments.NewCommentsCmd())
 	cmd.AddCommand(newComplianceCmd())
 	cmd.AddCommand(newPurchasesCmd())
 	cmd.AddCommand(newRelatedCmd())
@@ -46,16 +48,12 @@ func NewUsersCmd() *cobra.Command {
 	cmd.AddCommand(newResetPasswordCmd())
 	cmd.AddCommand(newUpdateEmailCmd())
 	cmd.AddCommand(newTwoFactorCmd())
-	cmd.AddCommand(newAddCommentCmd())
 
 	return cmd
 }
 
 func fallback(value, alt string) string {
-	if value == "" {
-		return alt
-	}
-	return value
+	return usertarget.Fallback(value, alt)
 }
 
 func writeIdentifierLine(w io.Writer, label, message, identifier string) error {
@@ -65,124 +63,24 @@ func writeIdentifierLine(w io.Writer, label, message, identifier string) error {
 	return output.Writef(w, "%s: %s\n", label, identifier)
 }
 
-func userIdentifier(email, externalID string) string {
-	if externalID != "" {
-		return externalID
-	}
-	return email
-}
-
-func requireEmailOrUserID(cmd *cobra.Command, email, userID string) error {
-	if email == "" && userID == "" {
-		return cmdutil.UsageErrorf(cmd, "supply --email or --user-id")
-	}
-	return nil
-}
-
-type userLookupFlags struct {
-	Email           string
-	UserID          string
-	ExternalIDAlias string
-}
-
-type userLookupTarget struct {
-	Email  string
-	UserID string
-}
+type userLookupFlags = usertarget.LookupFlags
+type userLookupTarget = usertarget.LookupTarget
 
 func addUserLookupFlags(cmd *cobra.Command, flags *userLookupFlags) {
-	cmd.Flags().StringVar(&flags.Email, "email", "", "User email")
-	cmd.Flags().StringVar(&flags.UserID, "user-id", "", "User external ID")
-	cmd.Flags().StringVar(&flags.ExternalIDAlias, "external-id", "", "Alias for --user-id")
-	_ = cmd.Flags().MarkHidden("external-id")
+	usertarget.AddLookupFlags(cmd, flags)
 }
 
 func resolveUserLookupTarget(cmd *cobra.Command, flags userLookupFlags) (userLookupTarget, error) {
-	userID, err := resolveUserIDAlias(cmd, flags.UserID, flags.ExternalIDAlias)
-	if err != nil {
-		return userLookupTarget{}, err
-	}
-	if err := requireEmailOrUserID(cmd, flags.Email, userID); err != nil {
-		return userLookupTarget{}, err
-	}
-	return userLookupTarget{Email: flags.Email, UserID: userID}, nil
+	return usertarget.ResolveLookupTarget(cmd, flags)
 }
 
-func (t userLookupTarget) identifier() string {
-	return userIdentifier(t.Email, t.UserID)
-}
-
-func (t userLookupTarget) values() url.Values {
-	params := url.Values{}
-	if t.Email != "" {
-		params.Set("email", t.Email)
-	}
-	if t.UserID != "" {
-		params.Set("user_id", t.UserID)
-	}
-	return params
-}
-
-type userMutationFlags struct {
-	UserID             string
-	ExternalIDAlias    string
-	ExpectedEmail      string
-	ExpectedEmailAlias string
-}
-
-type userMutationTarget struct {
-	UserID        string
-	ExpectedEmail string
-}
+type userMutationFlags = usertarget.MutationFlags
+type userMutationTarget = usertarget.MutationTarget
 
 func addUserMutationFlags(cmd *cobra.Command, flags *userMutationFlags) {
-	cmd.Flags().StringVar(&flags.UserID, "user-id", "", "User external ID (required)")
-	cmd.Flags().StringVar(&flags.ExpectedEmail, "expected-email", "", "Optional current email guard")
-	cmd.Flags().StringVar(&flags.ExternalIDAlias, "external-id", "", "Alias for --user-id")
-	cmd.Flags().StringVar(&flags.ExpectedEmailAlias, "email", "", "Alias for --expected-email")
-	_ = cmd.Flags().MarkHidden("external-id")
-	_ = cmd.Flags().MarkHidden("email")
+	usertarget.AddMutationFlags(cmd, flags)
 }
 
 func resolveUserMutationTarget(cmd *cobra.Command, flags userMutationFlags) (userMutationTarget, error) {
-	userID, err := resolveUserIDAlias(cmd, flags.UserID, flags.ExternalIDAlias)
-	if err != nil {
-		return userMutationTarget{}, err
-	}
-	expectedEmail, err := resolveExpectedEmailAlias(cmd, flags.ExpectedEmail, flags.ExpectedEmailAlias)
-	if err != nil {
-		return userMutationTarget{}, err
-	}
-	if userID == "" {
-		return userMutationTarget{}, cmdutil.MissingFlagError(cmd, "--user-id")
-	}
-	return userMutationTarget{UserID: userID, ExpectedEmail: expectedEmail}, nil
-}
-
-func (t userMutationTarget) identifier() string {
-	return t.UserID
-}
-
-func (t userMutationTarget) subject() string {
-	return "user_id " + t.UserID
-}
-
-func resolveUserIDAlias(cmd *cobra.Command, userID, externalIDAlias string) (string, error) {
-	if userID != "" && externalIDAlias != "" && userID != externalIDAlias {
-		return "", cmdutil.UsageErrorf(cmd, "--user-id and --external-id must match")
-	}
-	if userID != "" {
-		return userID, nil
-	}
-	return externalIDAlias, nil
-}
-
-func resolveExpectedEmailAlias(cmd *cobra.Command, expectedEmail, emailAlias string) (string, error) {
-	if expectedEmail != "" && emailAlias != "" && expectedEmail != emailAlias {
-		return "", cmdutil.UsageErrorf(cmd, "--expected-email and --email must match")
-	}
-	if expectedEmail != "" {
-		return expectedEmail, nil
-	}
-	return emailAlias, nil
+	return usertarget.ResolveMutationTarget(cmd, flags)
 }

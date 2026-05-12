@@ -21,6 +21,8 @@ func NewAdminCmd() *cobra.Command {
   gumroad admin licenses lookup --key <license-key>
   gumroad admin users info --email <email>
   gumroad admin users affiliates --user-id <user-id> --direction granted
+  gumroad admin users comments list --user-id <user-id>
+  gumroad admin users comments add --user-id <user-id> --content "VAT exempt confirmed"
   gumroad admin users compliance --user-id <user-id>
   gumroad admin users purchases --user-id <user-id> --status successful
   gumroad admin users related --email <email> --signal ip
