@@ -63,11 +63,12 @@ type productFilesResponse struct {
 }
 
 type dryRunUpdateBody struct {
-	DryRun    bool                 `json:"dry_run"`
-	Uploads   []dryRunCreateUpload `json:"uploads"`
-	Preserved []dryRunExistingFile `json:"preserved"`
-	Removed   []dryRunExistingFile `json:"removed"`
-	Request   dryRunCreateRequest  `json:"request"`
+	DryRun           bool                  `json:"dry_run"`
+	Uploads          []dryRunCreateUpload  `json:"uploads"`
+	Preserved        []dryRunExistingFile  `json:"preserved"`
+	Removed          []dryRunExistingFile  `json:"removed"`
+	Request          dryRunCreateRequest   `json:"request"`
+	FollowUpRequests []dryRunCreateRequest `json:"follow_up_requests,omitempty"`
 }
 
 type dryRunExistingFile struct {
@@ -312,28 +313,61 @@ func renderProductUpdateDryRun(
 	uploads []plannedProductUpload,
 	body map[string]any,
 ) error {
-	switch {
-	case opts.UsesJSONOutput():
-		return renderProductUpdateDryRunJSON(opts, path, plan, uploads, body)
-	case opts.PlainOutput:
-		return renderProductUpdateDryRunPlain(opts, path, plan, uploads, body)
-	default:
-		return renderProductUpdateDryRunHuman(opts, path, plan, uploads, body)
-	}
+	return renderProductUpdateDryRunWithMedia(opts, path, plan, uploads, body, nil, nil)
 }
 
-func renderProductUpdateDryRunJSON(
+func renderProductUpdateDryRunWithMedia(
 	opts cmdutil.Options,
 	path string,
 	plan productFileUpdatePlan,
 	uploads []plannedProductUpload,
 	body map[string]any,
+	media []plannedProductMedia,
+	followUps []dryRunCreateRequest,
 ) error {
+	switch {
+	case opts.UsesJSONOutput():
+		return renderProductUpdateDryRunJSONWithMedia(opts, path, plan, uploads, body, media, followUps)
+	case opts.PlainOutput:
+		return renderProductUpdateDryRunPlainWithMedia(opts, path, plan, uploads, body, media, followUps)
+	default:
+		return renderProductUpdateDryRunHumanWithMedia(opts, path, plan, uploads, body, media, followUps)
+	}
+}
+
+func renderProductUpdateMediaOnlyDryRunJSON(opts cmdutil.Options, media []plannedProductMedia, requests []dryRunCreateRequest) error {
 	payload := dryRunUpdateBody{
 		DryRun:    true,
-		Uploads:   make([]dryRunCreateUpload, 0, len(uploads)),
-		Preserved: make([]dryRunExistingFile, 0, len(plan.Preserved)),
-		Removed:   make([]dryRunExistingFile, 0, len(plan.Removed)),
+		Uploads:   productMediaDryRunUploads(media),
+		Preserved: []dryRunExistingFile{},
+		Removed:   []dryRunExistingFile{},
+	}
+	if len(requests) > 0 {
+		payload.Request = requests[0]
+		payload.FollowUpRequests = requests[1:]
+	}
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("could not encode dry-run output: %w", err)
+	}
+	return output.PrintJSON(opts.Out(), data, opts.JQExpr)
+}
+
+func renderProductUpdateDryRunJSONWithMedia(
+	opts cmdutil.Options,
+	path string,
+	plan productFileUpdatePlan,
+	uploads []plannedProductUpload,
+	body map[string]any,
+	media []plannedProductMedia,
+	followUps []dryRunCreateRequest,
+) error {
+	payload := dryRunUpdateBody{
+		DryRun:           true,
+		Uploads:          make([]dryRunCreateUpload, 0, len(uploads)+len(media)),
+		Preserved:        make([]dryRunExistingFile, 0, len(plan.Preserved)),
+		Removed:          make([]dryRunExistingFile, 0, len(plan.Removed)),
+		FollowUpRequests: followUps,
 		Request: dryRunCreateRequest{
 			Method: http.MethodPut,
 			Path:   path,
@@ -343,6 +377,7 @@ func renderProductUpdateDryRunJSON(
 	for _, planned := range uploads {
 		payload.Uploads = append(payload.Uploads, dryRunProductUpload(planned.Plan))
 	}
+	payload.Uploads = append(payload.Uploads, productMediaDryRunUploads(media)...)
 	for _, current := range plan.Preserved {
 		payload.Preserved = append(payload.Preserved, dryRunExistingProductFile(current))
 	}
@@ -356,12 +391,14 @@ func renderProductUpdateDryRunJSON(
 	return output.PrintJSON(opts.Out(), data, opts.JQExpr)
 }
 
-func renderProductUpdateDryRunPlain(
+func renderProductUpdateDryRunPlainWithMedia(
 	opts cmdutil.Options,
 	path string,
 	plan productFileUpdatePlan,
 	uploads []plannedProductUpload,
 	body map[string]any,
+	media []plannedProductMedia,
+	followUps []dryRunCreateRequest,
 ) error {
 	for _, current := range plan.Preserved {
 		if err := output.PrintPlain(opts.Out(), [][]string{{
@@ -386,23 +423,33 @@ func renderProductUpdateDryRunPlain(
 			return err
 		}
 	}
+	for _, planned := range media {
+		if err := renderProductMediaDryRunPlain(opts, planned); err != nil {
+			return err
+		}
+	}
 	data, err := json.Marshal(body)
 	if err != nil {
 		return fmt.Errorf("could not encode dry-run output: %w", err)
 	}
-	return output.PrintPlain(opts.Out(), [][]string{{
+	if err := output.PrintPlain(opts.Out(), [][]string{{
 		http.MethodPut,
 		path,
 		string(data),
-	}})
+	}}); err != nil {
+		return err
+	}
+	return renderDryRunRequestsPlain(opts, followUps)
 }
 
-func renderProductUpdateDryRunHuman(
+func renderProductUpdateDryRunHumanWithMedia(
 	opts cmdutil.Options,
 	path string,
 	plan productFileUpdatePlan,
 	uploads []plannedProductUpload,
 	body map[string]any,
+	media []plannedProductMedia,
+	followUps []dryRunCreateRequest,
 ) error {
 	for _, current := range plan.Preserved {
 		if err := output.Writeln(opts.Out(), "Preserve existing file: "+formatExistingProductFileLabel(current)); err != nil {
@@ -419,6 +466,11 @@ func renderProductUpdateDryRunHuman(
 			return err
 		}
 	}
+	for _, planned := range media {
+		if err := renderProductMediaDryRun(opts, planned); err != nil {
+			return err
+		}
+	}
 	style := opts.Style()
 	if err := output.Writeln(opts.Out(), style.Yellow("Dry run")+": "+http.MethodPut+" "+path); err != nil {
 		return err
@@ -428,16 +480,43 @@ func renderProductUpdateDryRunHuman(
 	if err != nil {
 		return fmt.Errorf("could not encode dry-run output: %w", err)
 	}
-	return output.Writeln(opts.Out(), string(data))
+	if err := output.Writeln(opts.Out(), string(data)); err != nil {
+		return err
+	}
+	return renderDryRunRequestsHuman(opts, followUps)
 }
 
-func runProductUpdateJSON(
+func runProductUpdateJSONData(
 	opts cmdutil.Options,
 	client *api.Client,
-	path, productID string,
+	path string,
 	body map[string]any,
 	uploadedURLs []string,
-) error {
+) (json.RawMessage, error) {
+	data, err := runProductUpdateData(opts, func() (json.RawMessage, error) {
+		return client.PutJSON(path, body)
+	})
+	if err != nil {
+		return nil, wrapPartialUploadError(err, uploadedURLs)
+	}
+	return data, nil
+}
+
+func runProductUpdateFormData(
+	opts cmdutil.Options,
+	client *api.Client,
+	path string,
+	params url.Values,
+) (json.RawMessage, error) {
+	return runProductUpdateData(opts, func() (json.RawMessage, error) {
+		return client.Put(path, params)
+	})
+}
+
+func runProductUpdateData(
+	opts cmdutil.Options,
+	run func() (json.RawMessage, error),
+) (json.RawMessage, error) {
 	var sp *output.Spinner
 	if cmdutil.ShouldShowSpinner(opts) {
 		sp = output.NewSpinnerTo("Updating product...", opts.Err())
@@ -445,14 +524,14 @@ func runProductUpdateJSON(
 		defer sp.Stop()
 	}
 
-	data, err := client.PutJSON(path, body)
+	data, err := run()
 	if err != nil {
-		return wrapPartialUploadError(err, uploadedURLs)
+		return nil, err
 	}
 	if sp != nil {
 		sp.Stop()
 	}
-	return cmdutil.PrintMutationSuccess(opts, data, productID, "Product "+productID+" updated.")
+	return data, nil
 }
 
 func confirmProductFileRemoval(opts cmdutil.Options, productID string, removed []existingProductFile) (bool, error) {
