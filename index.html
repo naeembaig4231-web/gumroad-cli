@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Storybook Shelf - A magical online bookstore featuring enchanting children's books and romance novels by Naeem Baig. Discover your next favorite story.">
+    <meta name="keywords" content="children's books, romance novels, ebook store, storybook, fairy tales, digital books, Gumroad">
+    <meta name="author" content="Naeem Baig">
+    <meta property="og:title" content="The Storybook Shelf - Magical Books Await">
+    <meta property="og:description" content="Enter a world of enchantment with our curated collection of children's books and romance novels.">
+    <meta property="og:type" content="website">
+    <title>The Storybook Shelf | Magical Books Await</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Floating Stars Background -->
+    <div class="stars-container" aria-hidden="true">
+        <div class="star" style="--i: 1;"></div>
+        <div class="star" style="--i: 2;"></div>
+        <div class="star" style="--i: 3;"></div>
+        <div class="star" style="--i: 4;"></div>
+        <div class="star" style="--i: 5;"></div>
+        <div class="star" style="--i: 6;"></div>
+        <div class="star" style="--i: 7;"></div>
+        <div class="star" style="--i: 8;"></div>
+        <div class="star" style="--i: 9;"></div>
+        <div class="star" style="--i: 10;"></div>
+        <div class="star" style="--i: 11;"></div>
+        <div class="star" style="--i: 12;"></div>
+        <div class="star" style="--i: 13;"></div>
+        <div class="star" style="--i: 14;"></div>
+        <div class="star" style="--i: 15;"></div>
+        <div class="star" style="--i: 16;"></div>
+        <div class="star" style="--i: 17;"></div>
+        <div class="star" style="--i: 18;"></div>
+        <div class="star" style="--i: 19;"></div>
+        <div class="star" style="--i: 20;"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <span class="owl-icon">🦉</span>
+                <span class="logo-text">The Storybook Shelf</span>
+            </a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span class="hamburger"></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#childrens-books">Children's Books</a></li>
+                <li><a href="#romance">Romance</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#reviews">Reviews</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-logo">
+                <span class="hero-owl">🦉</span>
+            </div>
+            <h1 class="hero-title">
+                <span class="title-line">Welcome to</span>
+                <span class="title-line gold-text">The Storybook Shelf</span>
+            </h1>
+            <p class="hero-subtitle">Where Magic Meets Pages</p>
+            <p class="hero-description">Step into a world of enchantment and discover beautifully crafted stories for young dreamers and romantic souls.</p>
+            <div class="hero-buttons">
+                <a href="#childrens-books" class="btn btn-primary">
+                    <span>Explore Books</span>
+                    <span class="btn-sparkle">✨</span>
+                </a>
+                <a href="#newsletter" class="btn btn-secondary">Join Our Story</a>
+            </div>
+        </div>
+        <div class="hero-decoration">
+            <div class="floating-book book-1">📖</div>
+            <div class="floating-book book-2">📚</div>
+            <div class="floating-book book-3">📕</div>
+        </div>
+    </section>
+
+    <!-- Featured Children's Books Section -->
+    <section class="books-section" id="childrens-books">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">✨ Featured Collection</span>
+                <h2 class="section-title">Children's Books</h2>
+                <p class="section-subtitle">Enchanting tales that spark imagination and wonder in young hearts</p>
+            </div>
+            
+            <div class="bookshelf">
+                <div class="book-card" data-aos="fade-up">
+                    <div class="book-cover">
+                        <div class="book-placeholder">
+                            <span class="book-emoji">📗</span>
+                            <span class="book-title-placeholder">The Magic Forest</span>
+                        </div>
+                        <div class="book-glow"></div>
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">The Magic Forest</h3>
+                        <p class="book-author">by Naeem Baig</p>
+                        <p class="book-description">A young adventurer discovers a hidden forest where animals speak and magic flows through every leaf.</p>
+                        <div class="book-price">$9.99</div>
+                        <a href="https://naeembaig7.gumroad.com/" target="_blank" rel="noopener" class="btn btn-book">
+                            Get Your Copy
+                            <span class="btn-icon">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="book-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="book-cover">
+                        <div class="book-placeholder">
+                            <span class="book-emoji">📘</span>
+                            <span class="book-title-placeholder">Dragon's Best Friend</span>
+                        </div>
+                        <div class="book-glow"></div>
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">Dragon's Best Friend</h3>
+                        <p class="book-author">by Naeem Baig</p>
+                        <p class="book-description">An unlikely friendship between a brave child and a gentle dragon teaches us about courage and loyalty.</p>
+                        <div class="book-price">$12.99</div>
+                        <a href="https://naeembaig7.gumroad.com/" target="_blank" rel="noopener" class="btn btn-book">
+                            Get Your Copy
+                            <span class="btn-icon">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="book-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="book-cover">
+                        <div class="book-placeholder">
+                            <span class="book-emoji">📙</span>
+                            <span class="book-title-placeholder">The Star Collector</span>
+                        </div>
+                        <div class="book-glow"></div>
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">The Star Collector</h3>
+                        <p class="book-author">by Naeem Baig</p>
+                        <p class="book-description">A mystical tale of a child who collects fallen stars and learns the true meaning of wishes.</p>
+                        <div class="book-price">$11.99</div>
+                        <a href="https://naeembaig7.gumroad.com/" target="_blank" rel="noopener" class="btn btn-book">
+                            Get Your Copy
+                            <span class="btn-icon">→</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-all-container">
+                <a href="https://naeembaig7.gumroad.com/" target="_blank" rel="noopener" class="btn btn-view-all">
+                    View All Children's Books on Gumroad
+                    <img src="assets/gumroad-badge.svg" alt="Gumroad" class="gumroad-icon">
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Romance Collection Section -->
+    <section class="books-section romance-section" id="romance">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge romance-badge">💕 Coming Soon</span>
+                <h2 class="section-title">Romance Collection</h2>
+                <p class="section-subtitle">Heartwarming love stories that will make you believe in forever</p>
+            </div>
+
+            <div class="coming-soon-content">
+                <div class="romance-preview">
+                    <div class="preview-cards">
+                        <div class="preview-card card-1">
+                            <span class="card-heart">💝</span>
+                            <p>Love in Bloom</p>
+                        </div>
+                        <div class="preview-card card-2">
+                            <span class="card-heart">💗</span>
+                            <p>Midnight Whispers</p>
+                        </div>
+                        <div class="preview-card card-3">
+                            <span class="card-heart">💖</span>
+                            <p>Forever Yours</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="coming-soon-text">
+                    <h3>A New Chapter Awaits</h3>
+                    <p>Our romance collection is currently being written with love and care. Each story promises to transport you to worlds where love conquers all.</p>
+                    <p class="notify-text">Want to be notified when these books launch?</p>
+                    <a href="#newsletter" class="btn btn-primary">Notify Me</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-image">
+                    <div class="image-frame">
+                        <span class="frame-owl">🦉</span>
+                        <div class="frame-decoration"></div>
+                    </div>
+                </div>
+                <div class="about-content">
+                    <span class="section-badge">📖 Our Story</span>
+                    <h2 class="section-title">About The Storybook Shelf</h2>
+                    <p class="about-text">Welcome to The Storybook Shelf, where every book is a doorway to another world. Founded by author Naeem Baig, this magical corner of the internet is dedicated to bringing enchanting stories to readers of all ages.</p>
+                    <p class="about-text">From whimsical children's tales that ignite young imaginations to heartwarming romance novels that celebrate love in all its forms, each book on our shelf is crafted with passion, care, and a touch of magic.</p>
+                    <p class="about-text">We believe that stories have the power to transform, to heal, and to connect us across time and space. That's why every page we write is infused with the hope of creating moments of wonder and joy for our readers.</p>
+                    <div class="about-signature">
+                        <span class="signature-owl">🦉</span>
+                        <span class="signature-name">Naeem Baig</span>
+                        <span class="signature-title">Author & Storyteller</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Readers Love Us Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">⭐ Why Choose Us</span>
+                <h2 class="section-title">Why Readers Love Us</h2>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">✨</div>
+                    <h3>Magical Storytelling</h3>
+                    <p>Every story is crafted to transport you to enchanting worlds filled with wonder and possibility.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Beautiful Illustrations</h3>
+                    <p>Vivid imagery and descriptive language that paints pictures in your mind with every word.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💝</div>
+                    <h3>Heartfelt Stories</h3>
+                    <p>Tales that touch the soul and leave lasting impressions on readers of all ages.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Instant Access</h3>
+                    <p>Download your books immediately after purchase and start reading right away.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure Purchase</h3>
+                    <p>All transactions are processed securely through Gumroad's trusted platform.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌟</div>
+                    <h3>Reader Community</h3>
+                    <p>Join a growing community of book lovers who share your passion for great stories.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="reviews-section" id="reviews">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">💬 Testimonials</span>
+                <h2 class="section-title">What Readers Say</h2>
+                <p class="section-subtitle">Hear from our wonderful community of book lovers</p>
+            </div>
+
+            <div class="reviews-slider">
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">"The Magic Forest captivated my entire family! My children ask me to read it every night. The illustrations in my mind were so vivid, we felt like we were there."</p>
+                    <div class="review-author">
+                        <span class="author-avatar">👩‍🦰</span>
+                        <div class="author-info">
+                            <span class="author-name">Sarah M.</span>
+                            <span class="author-title">Parent & Educator</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">"Dragon's Best Friend brought tears to my eyes. Such a beautiful message about friendship and acceptance. Highly recommend for all ages!"</p>
+                    <div class="review-author">
+                        <span class="author-avatar">👨</span>
+                        <div class="author-info">
+                            <span class="author-name">Michael R.</span>
+                            <span class="author-title">Book Reviewer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">"The Star Collector is pure poetry. Naeem Baig has a gift for weaving words into magic. Can't wait for the romance collection!"</p>
+                    <div class="review-author">
+                        <span class="author-avatar">👩</span>
+                        <div class="author-info">
+                            <span class="author-name">Emma L.</span>
+                            <span class="author-title">Avid Reader</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section" id="faq">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">❓ FAQ</span>
+                <h2 class="section-title">Frequently Asked Questions</h2>
+            </div>
+
+            <div class="faq-container">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>How do I purchase the books?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Simply click on any "Get Your Copy" button, which will take you to our Gumroad store. From there, you can complete your purchase securely and receive instant access to download your book.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>What format are the books in?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Our books are available in multiple formats including PDF, ePub, and Mobi, ensuring compatibility with all e-readers, tablets, and computers.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Can I read these on my Kindle?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes! The Mobi format is specifically designed for Kindle devices. You can also use the ePub format with most other e-readers.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Do you offer refunds?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We want you to love your purchase! If you're not satisfied with your book, please contact us within 14 days of purchase for a refund.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>When will the romance collection be available?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We're working hard on the romance collection! Sign up for our newsletter to be the first to know when new books launch.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Are these books suitable for all ages?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Our children's books are designed for young readers (ages 5-12) but can be enjoyed by all ages. The upcoming romance collection will be targeted at adult readers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section" id="newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <div class="newsletter-decoration">
+                    <span class="decor-star">⭐</span>
+                    <span class="decor-book">📚</span>
+                    <span class="decor-star">⭐</span>
+                </div>
+                <h2 class="newsletter-title">Join Our Story</h2>
+                <p class="newsletter-subtitle">Subscribe to receive updates on new releases, exclusive content, and special offers</p>
+                <form class="newsletter-form" id="newsletterForm">
+                    <div class="form-group">
+                        <input type="text" id="name" name="name" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" placeholder="Your Email Address" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-newsletter">
+                        <span>Subscribe Now</span>
+                        <span class="btn-sparkle">✨</span>
+                    </button>
+                </form>
+                <p class="newsletter-note">🔒 We respect your privacy. No spam, ever.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">📧 Get In Touch</span>
+                <h2 class="section-title">Contact Us</h2>
+                <p class="section-subtitle">Have a question or just want to say hello? We'd love to hear from you!</p>
+            </div>
+
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <div class="contact-card">
+                        <span class="contact-icon">📧</span>
+                        <h3>Email</h3>
+                        <a href="mailto:naeembaig4231@gmail.com">naeembaig4231@gmail.com</a>
+                    </div>
+                    <div class="contact-card">
+                        <span class="contact-icon">🛒</span>
+                        <h3>Gumroad Store</h3>
+                        <a href="https://naeembaig7.gumroad.com/" target="_blank" rel="noopener">Visit Our Store</a>
+                    </div>
+                    <div class="contact-card">
+                        <span class="contact-icon">🦉</span>
+                        <h3>Response Time</h3>
+                        <p>We typically respond within 24-48 hours</p>
+                    </div>
+                </div>
+
+                <div class="contact-form-wrapper">
+                    <form class="contact-form" id="contactForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contactName">Your Name</label>
+                                <input type="text" id="contactName" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactEmail">Your Email</label>
+                                <input type="email" id="contactEmail" name="email" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            Send Message
+                            <span class="btn-icon">→</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <span class="footer-owl">🦉</span>
+                        <span class="footer-text">The Storybook Shelf</span>
+                    </div>
+                    <p class="footer-tagline">Where Magic Meets Pages</p>
+                    <p class="footer-description">Bringing enchanting stories to readers around the world, one book at a time.</p>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#childrens-books">Children's Books</a></li>
+                        <li><a href="#romance">Romance Collection</a></li>
+                        <li><a href="#about">About</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="#reviews">Reviews</a></li>
+                        <li><a href="#newsletter">Newsletter</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-social">
+                    <h4>Connect With Us</h4>
+                    <div class="social-links">
+                        <a href="https://naeembaig7.gumroad.com/" target="_blank" rel="noopener" class="social-link gumroad" title="Gumroad Store">
+                            <img src="assets/gumroad-badge.svg" alt="Gumroad">
+                        </a>
+                        <a href="mailto:naeembaig4231@gmail.com" class="social-link email" title="Email">
+                            <span>📧</span>
+                        </a>
+                    </div>
+                    <p class="footer-note">All purchases are securely processed through Gumroad.</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; <span id="currentYear">2024</span> The Storybook Shelf. All rights reserved.</p>
+                <p class="made-with-love">Made with <span class="heart">💛</span> and lots of ☕</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
+        <span>↑</span>
+    </button>
+
+    <script src="script.js"></script>
+</body>
+</html>
